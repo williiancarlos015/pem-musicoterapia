@@ -1,236 +1,207 @@
-import Link from 'next/link';
+'use client'
 
-export default function PEMDashboard() {
-  const indicadores = [
-    {
-      titulo: 'Pacientes Ativos',
-      valor: 28,
-    },
-    {
-      titulo: 'Sessões no Mês',
-      valor: 96,
-    },
-    {
-      titulo: 'Evolução Média',
-      valor: '82%',
-    },
-    {
-      titulo: 'Frequência',
-      valor: '91%',
-    },
-  ];
+import { useEffect, useState } from 'react'
 
-  const pacientes = [
-    {
-      nome: 'Nicolas Amorim',
-      diagnostico: 'TEA',
-      evolucao: 'Boa evolução comunicativa',
-    },
-    {
-      nome: 'Maria Eduarda',
-      diagnostico: 'Atraso no desenvolvimento',
-      evolucao: 'Melhora no contato visual',
-    },
-    {
-      nome: 'João Miguel',
-      diagnostico: 'Síndrome de Down',
-      evolucao: 'Maior interação social',
-    },
-  ];
+import Link from 'next/link'
+
+import { supabase } from '../../lib/supabase'
+
+interface Paciente {
+
+  id: number
+
+  nome: string
+
+  diagnostico: string
+
+  responsavel: string
+}
+
+export default function PacientesPage() {
+
+  const [pacientes, setPacientes] =
+    useState<Paciente[]>([])
+
+  const [loading, setLoading] =
+    useState(true)
+
+  useEffect(() => {
+
+    carregarPacientes()
+
+  }, [])
+
+  async function carregarPacientes() {
+
+    try {
+
+      const { data, error } =
+        await supabase
+          .from('pacientes')
+          .select('*')
+          .order('nome')
+
+      if (error) {
+
+        console.error(error)
+        return
+      }
+
+      setPacientes(data || [])
+
+    } catch (error) {
+
+      console.error(error)
+
+    } finally {
+
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 flex">
-      <aside className="w-72 bg-green-700 text-white p-6 flex flex-col gap-6 shadow-2xl">
-        <div>
-          <h1 className="text-3xl font-bold">
-            PEM Musicoterapia
-          </h1>
 
-          <p className="text-green-100 mt-2 text-sm">
-            Prontuário Eletrônico Musicoterapêutico
-          </p>
-        </div>
+      <aside className="w-72 bg-green-800 text-white p-8 hidden md:flex flex-col">
 
-        <nav className="flex flex-col gap-3 mt-6">
+        <h1 className="text-3xl font-bold mb-10">
+          PEM
+        </h1>
+
+        <nav className="flex flex-col gap-4">
+
           <Link
-            href="/"
-            className="bg-white/10 hover:bg-white/20 transition rounded-xl p-3 text-left"
+            href="/dashboard"
+            className="bg-green-700 px-5 py-4 rounded-2xl"
           >
             Dashboard
           </Link>
 
           <Link
             href="/pacientes"
-            className="bg-white/10 hover:bg-white/20 transition rounded-xl p-3 text-left"
+            className="bg-green-600 px-5 py-4 rounded-2xl"
           >
             Pacientes
           </Link>
 
           <Link
             href="/sessoes"
-            className="bg-white/10 hover:bg-white/20 transition rounded-xl p-3 text-left"
+            className="bg-green-700 px-5 py-4 rounded-2xl"
           >
             Sessões
           </Link>
 
-          <button className="bg-white/10 hover:bg-white/20 transition rounded-xl p-3 text-left">
-            Agenda
-          </button>
-
-          <button className="bg-white/10 hover:bg-white/20 transition rounded-xl p-3 text-left">
+          <Link
+            href="/relatorios"
+            className="bg-green-700 px-5 py-4 rounded-2xl"
+          >
             Relatórios
-          </button>
+          </Link>
 
-          <button className="bg-white/10 hover:bg-white/20 transition rounded-xl p-3 text-left">
-            Financeiro
-          </button>
         </nav>
+
       </aside>
 
-      <main className="flex-1 p-8 overflow-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-4xl font-bold text-slate-800">
-              Dashboard Clínico
-            </h2>
+      <main className="flex-1 p-10">
 
-            <p className="text-slate-500 mt-2">
-              Visão geral dos atendimentos musicoterapêuticos
+        <div className="flex items-center justify-between mb-10">
+
+          <div>
+
+            <h1 className="text-5xl font-bold text-green-700">
+              Pacientes
+            </h1>
+
+            <p className="text-slate-500 mt-3 text-lg">
+              Gestão clínica de pacientes
             </p>
+
           </div>
 
-          <button className="bg-green-700 text-white px-6 py-3 rounded-2xl shadow-lg hover:scale-105 transition">
-            Nova Sessão
-          </button>
+          <Link
+            href="/pacientes/novo"
+            className="bg-green-700 text-white px-6 py-3 rounded-2xl"
+          >
+            Novo Paciente
+          </Link>
+
         </div>
 
-        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
-          {indicadores.map((item, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-3xl p-6 shadow-lg"
-            >
-              <p className="text-slate-500 text-sm mb-3">
-                {item.titulo}
-              </p>
+        <div className="bg-white rounded-3xl shadow-lg p-8">
 
-              <h3 className="text-4xl font-bold text-green-700">
-                {item.valor}
-              </h3>
-            </div>
-          ))}
-        </section>
+          {loading && (
 
-        <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          <div className="xl:col-span-2 bg-white rounded-3xl p-6 shadow-lg">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-slate-800">
-                Evolução Clínica
-              </h3>
-
-              <select className="border rounded-xl px-4 py-2">
-                <option>Últimos 30 dias</option>
-                <option>Últimos 3 meses</option>
-                <option>Último ano</option>
-              </select>
+            <div>
+              Carregando pacientes...
             </div>
 
-            <div className="h-72 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 text-lg">
-              Área reservada para gráficos clínicos
+          )}
+
+          {!loading && pacientes.length === 0 && (
+
+            <div className="text-slate-500">
+              Nenhum paciente cadastrado.
             </div>
-          </div>
 
-          <div className="bg-white rounded-3xl p-6 shadow-lg">
-            <h3 className="text-2xl font-bold text-slate-800 mb-6">
-              Próximas Sessões
-            </h3>
+          )}
 
-            <div className="flex flex-col gap-4">
-              <div className="bg-slate-100 rounded-2xl p-4">
-                <h4 className="font-semibold text-slate-800">
-                  Nicolas Amorim
-                </h4>
+          <div className="flex flex-col gap-5">
 
-                <p className="text-sm text-slate-500 mt-1">
-                  Hoje • 14:00
-                </p>
-              </div>
+            {pacientes.map((paciente) => (
 
-              <div className="bg-slate-100 rounded-2xl p-4">
-                <h4 className="font-semibold text-slate-800">
-                  Maria Eduarda
-                </h4>
+              <div
+                key={paciente.id}
+                className="border rounded-2xl p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-5"
+              >
 
-                <p className="text-sm text-slate-500 mt-1">
-                  Hoje • 15:00
-                </p>
-              </div>
+                <div>
 
-              <div className="bg-slate-100 rounded-2xl p-4">
-                <h4 className="font-semibold text-slate-800">
-                  João Miguel
-                </h4>
+                  <h2 className="text-2xl font-bold text-green-700">
+                    {paciente.nome}
+                  </h2>
 
-                <p className="text-sm text-slate-500 mt-1">
-                  Amanhã • 09:00
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+                  <p className="text-slate-500 mt-2">
+                    Diagnóstico:
+                    {' '}
+                    {paciente.diagnostico || 'Não informado'}
+                  </p>
 
-        <section className="bg-white rounded-3xl p-6 shadow-lg mt-8">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold text-slate-800">
-              Pacientes Recentes
-            </h3>
+                  <p className="text-slate-500">
+                    Responsável:
+                    {' '}
+                    {paciente.responsavel || 'Não informado'}
+                  </p>
 
-            <button className="text-green-700 font-semibold">
-              Ver todos
-            </button>
-          </div>
+                </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="text-left border-b">
-                  <th className="pb-4">Paciente</th>
-                  <th className="pb-4">Diagnóstico</th>
-                  <th className="pb-4">Evolução</th>
-                  <th className="pb-4">Status</th>
-                </tr>
-              </thead>
+                <div className="flex gap-3 flex-wrap">
 
-              <tbody>
-                {pacientes.map((paciente, index) => (
-                  <tr
-                    key={index}
-                    className="border-b last:border-0"
+                  <Link
+                    href={`/pacientes/${paciente.id}`}
+                    className="bg-slate-700 text-white px-5 py-3 rounded-2xl"
                   >
-                    <td className="py-5 font-medium text-slate-800">
-                      {paciente.nome}
-                    </td>
+                    Perfil
+                  </Link>
 
-                    <td className="py-5 text-slate-600">
-                      {paciente.diagnostico}
-                    </td>
+                  <Link
+                    href={`/pacientes/${paciente.id}/prontuario`}
+                    className="bg-green-700 text-white px-5 py-3 rounded-2xl"
+                  >
+                    Prontuário
+                  </Link>
 
-                    <td className="py-5 text-slate-600">
-                      {paciente.evolucao}
-                    </td>
+                </div>
 
-                    <td className="py-5">
-                      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
-                        Em acompanhamento
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              </div>
+
+            ))}
+
           </div>
-        </section>
+
+        </div>
+
       </main>
+
     </div>
-  );
+  )
 }

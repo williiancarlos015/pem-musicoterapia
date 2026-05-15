@@ -2,117 +2,225 @@
 
 import Link from 'next/link'
 
-export default function Dashboard() {
-
-  const indicadores = [
-    {
-      titulo: 'Pacientes',
-      valor: '12',
-    },
-    {
-      titulo: 'Sessões',
-      valor: '84',
-    },
-    {
-      titulo: 'Agenda Hoje',
-      valor: '6',
-    },
-    {
-      titulo: 'Sistema',
-      valor: 'Online',
-    },
-  ]
+export default function DashboardPage() {
 
   return (
-    <div className="min-h-screen bg-slate-100 p-10">
+    <div className="min-h-screen bg-slate-100 flex">
 
-      <div className="flex items-center justify-between mb-10">
+      <aside className="w-72 bg-green-800 text-white p-8 hidden md:flex flex-col">
 
-        <div>
+        <h1 className="text-3xl font-bold mb-10">
+          PEM
+        </h1>
 
-          <h1 className="text-4xl font-bold text-green-700">
-            PEM Musicoterapia
+        <nav className="flex flex-col gap-4">
+
+          <Link
+            href="/dashboard"
+            className="bg-green-600 hover:bg-green-500 transition px-5 py-4 rounded-2xl font-semibold border border-green-400"
+          >
+            Dashboard
+          </Link>
+
+          <Link
+            href="/pacientes"
+            className="bg-green-700 hover:bg-green-600 transition px-5 py-4 rounded-2xl"
+          >
+            Pacientes
+          </Link>
+
+          <Link
+            href="/agenda"
+            className="bg-green-700 hover:bg-green-600 transition px-5 py-4 rounded-2xl"
+          >
+            Agenda
+          </Link>
+
+          <Link
+            href="/sessoes"
+            className="bg-green-700 hover:bg-green-600 transition px-5 py-4 rounded-2xl"
+          >
+            Sessões
+          </Link>
+
+          <Link
+            href="/relatorios"
+            className="bg-green-700 hover:bg-green-600 transition px-5 py-4 rounded-2xl"
+          >
+            Relatórios
+          </Link>
+
+          <Link
+            href="/financeiro"
+            className="bg-green-700 hover:bg-green-600 transition px-5 py-4 rounded-2xl"
+          >
+            Financeiro
+          </Link>
+
+          <Link
+            href="/indicadores"
+            className="bg-green-700 hover:bg-green-600 transition px-5 py-4 rounded-2xl"
+          >
+            Indicadores
+          </Link>
+
+          <Link
+            href="/assistente"
+            className="bg-green-700 hover:bg-green-600 transition px-5 py-4 rounded-2xl"
+          >
+            Assistente IA
+          </Link>
+
+          <Link
+            href="/pdf"
+            className="bg-green-700 hover:bg-green-600 transition px-5 py-4 rounded-2xl"
+          >
+            Gerar PDF
+          </Link>
+
+        </nav>
+
+      </aside>
+
+      <main className="flex-1 p-10">
+
+        <div className="mb-10">
+
+          <h1 className="text-5xl font-bold text-green-700">
+            Dashboard Clínico
           </h1>
 
-          <p className="text-slate-600 mt-2">
-            Painel Clínico
+          <p className="text-slate-500 mt-3 text-lg">
+            Sistema PEM Musicoterapia
           </p>
 
         </div>
 
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-
-        {indicadores.map((item, index) => (
-
-          <div
-            key={index}
-            className="bg-white rounded-3xl shadow-lg p-6"
+          <Link
+            href="/pacientes"
+            className="bg-white rounded-3xl shadow-lg p-8 hover:scale-105 transition"
           >
 
-            <p className="text-slate-500">
-              {item.titulo}
-            </p>
-
-            <h2 className="text-4xl font-bold text-green-700 mt-4">
-              {item.valor}
+            <h2 className="text-2xl font-bold text-green-700 mb-3">
+              Pacientes
             </h2>
 
-          </div>
+            <p className="text-slate-500">
+              Cadastro e prontuários clínicos
+            </p>
 
-        ))}
+          </Link>
 
-      </div>
+          <Link
+            href="/agenda"
+            className="bg-white rounded-3xl shadow-lg p-8 hover:scale-105 transition"
+          >
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <h2 className="text-2xl font-bold text-green-700 mb-3">
+              Agenda
+            </h2>
 
-        <Link
-          href="/pacientes"
-          className="bg-white rounded-3xl shadow-lg p-8 hover:scale-105 transition"
-        >
+            <p className="text-slate-500">
+              Organização dos atendimentos
+            </p>
 
-          <h2 className="text-2xl font-bold text-green-700">
-            Pacientes
-          </h2>
+          </Link>
 
-          <p className="text-slate-500 mt-3">
-            Cadastro e gerenciamento
-          </p>
+          <Link
+            href="/sessoes"
+            className="bg-white rounded-3xl shadow-lg p-8 hover:scale-105 transition"
+          >
 
-        </Link>
+            <h2 className="text-2xl font-bold text-green-700 mb-3">
+              Sessões
+            </h2>
 
-        <Link
-          href="/sessoes"
-          className="bg-white rounded-3xl shadow-lg p-8 hover:scale-105 transition"
-        >
+            <p className="text-slate-500">
+              Evoluções terapêuticas
+            </p>
 
-          <h2 className="text-2xl font-bold text-green-700">
-            Sessões
-          </h2>
+          </Link>
 
-          <p className="text-slate-500 mt-3">
-            Evolução terapêutica
-          </p>
+          <Link
+            href="/relatorios"
+            className="bg-white rounded-3xl shadow-lg p-8 hover:scale-105 transition"
+          >
 
-        </Link>
+            <h2 className="text-2xl font-bold text-green-700 mb-3">
+              Relatórios
+            </h2>
 
-        <Link
-          href="/agenda"
-          className="bg-white rounded-3xl shadow-lg p-8 hover:scale-105 transition"
-        >
+            <p className="text-slate-500">
+              Relatórios clínicos e PDF
+            </p>
 
-          <h2 className="text-2xl font-bold text-green-700">
-            Agenda
-          </h2>
+          </Link>
 
-          <p className="text-slate-500 mt-3">
-            Agendamentos clínicos
-          </p>
+          <Link
+            href="/financeiro"
+            className="bg-white rounded-3xl shadow-lg p-8 hover:scale-105 transition"
+          >
 
-        </Link>
+            <h2 className="text-2xl font-bold text-green-700 mb-3">
+              Financeiro
+            </h2>
 
-      </div>
+            <p className="text-slate-500">
+              Controle financeiro clínico
+            </p>
+
+          </Link>
+
+          <Link
+            href="/indicadores"
+            className="bg-white rounded-3xl shadow-lg p-8 hover:scale-105 transition"
+          >
+
+            <h2 className="text-2xl font-bold text-green-700 mb-3">
+              Indicadores
+            </h2>
+
+            <p className="text-slate-500">
+              Painel evolutivo terapêutico
+            </p>
+
+          </Link>
+
+          <Link
+            href="/assistente"
+            className="bg-white rounded-3xl shadow-lg p-8 hover:scale-105 transition"
+          >
+
+            <h2 className="text-2xl font-bold text-green-700 mb-3">
+              Assistente IA
+            </h2>
+
+            <p className="text-slate-500">
+              Geração inteligente de evolução clínica
+            </p>
+
+          </Link>
+
+          <Link
+            href="/pdf"
+            className="bg-white rounded-3xl shadow-lg p-8 hover:scale-105 transition"
+          >
+
+            <h2 className="text-2xl font-bold text-green-700 mb-3">
+              Gerar PDF
+            </h2>
+
+            <p className="text-slate-500">
+              Exportação profissional de relatórios
+            </p>
+
+          </Link>
+
+        </div>
+
+      </main>
 
     </div>
   )

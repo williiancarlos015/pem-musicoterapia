@@ -1,168 +1,418 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+
+import Link from 'next/link'
+
 import { supabase } from '../../lib/supabase'
 
-export default function Page() {
+interface Paciente {
 
-  const [sessoes, setSessoes] = useState<any[]>([])
-  const [pacientes, setPacientes] = useState<any[]>([])
+  id: number
 
-  const [pacienteId, setPacienteId] = useState('')
-  const [objetivo, setObjetivo] = useState('')
+  nome: string
+}
 
-  async function carregarSessoes() {
+interface Sessao {
 
-    const { data, error } = await supabase
-      .from('sessoes')
-      .select('*')
-      .order('id', { ascending: false })
+  id?: number
 
-    console.log(data)
-    console.log(error)
+  paciente_id: number
 
-    if (data) {
-      setSessoes(data)
-    }
-  }
+  paciente_nome: string
+
+  data: string
+
+  objetivo: string
+
+  tecnica: string
+
+  resposta: string
+
+  evolucao: string
+}
+
+export default function SessoesPage() {
+
+  const [pacientes, setPacientes] =
+    useState<Paciente[]>([])
+
+  const [sessoes, setSessoes] =
+    useState<Sessao[]>([])
+
+  const [loading, setLoading] =
+    useState(false)
+
+  const [form, setForm] =
+    useState<Sessao>({
+
+      paciente_id: 0,
+
+      paciente_nome: '',
+
+      data: '',
+
+      objetivo: '',
+
+      tecnica: '',
+
+      resposta: '',
+
+      evolucao: ''
+    })
+
+  useEffect(() => {
+
+    carregarPacientes()
+
+    carregarSessoes()
+
+  }, [])
 
   async function carregarPacientes() {
 
-    const { data, error } = await supabase
-      .from('pacientes')
-      .select('*')
+    const { data } =
+      await supabase
+        .from('pacientes')
+        .select('*')
+        .order('nome')
 
-    console.log(data)
-    console.log(error)
+    setPacientes(data || [])
+  }
 
-    if (data) {
-      setPacientes(data)
-    }
+  async function carregarSessoes() {
+
+    const { data } =
+      await supabase
+        .from('sessoes')
+        .select('*')
+        .order('id', {
+          ascending: false
+        })
+
+    setSessoes(data || [])
   }
 
   async function salvarSessao() {
 
-    const pacienteSelecionado = pacientes.find(
-      (p) => p.id == pacienteId
-    )
+    try {
 
-    const { error } = await supabase
-      .from('sessoes')
-      .insert([
-        {
-          paciente_id: pacienteId,
-          paciente: pacienteSelecionado?.nome,
-          objetivo: objetivo,
-        },
-      ])
+      if (
+        !form.paciente_id ||
+        !form.data
+      ) {
 
-    if (error) {
-      alert(error.message)
-      return
+        alert('Preencha os campos obrigatórios')
+        return
+      }
+
+      setLoading(true)
+
+      const paciente =
+        pacientes.find(
+          (p) =>
+            p.id === form.paciente_id
+        )
+
+      const sessao = {
+
+        ...form,
+
+        paciente_nome:
+          paciente?.nome || ''
+      }
+
+      const { error } =
+        await supabase
+          .from('sessoes')
+          .insert([sessao])
+
+     alert(JSON.stringify(error))
+
+      if (form.evolucao) {
+
+        await supabase
+          .from('evolucoes')
+          .insert([
+            {
+              paciente_id:
+                String(form.paciente_id),
+
+              objetivo:
+                form.objetivo,
+
+              evolucao:
+                form.evolucao
+            }
+          ])
+      }
+
+      alert('Sessão registrada')
+
+      setForm({
+
+        paciente_id: 0,
+
+        paciente_nome: '',
+
+        data: '',
+
+        objetivo: '',
+
+        tecnica: '',
+
+        resposta: '',
+
+        evolucao: ''
+      })
+
+      carregarSessoes()
+
+    } catch (error) {
+
+      console.error(error)
+
+alert(String(error))
+
+    } finally {
+
+      setLoading(false)
     }
-
-    alert('Sessão salva')
-
-    setPacienteId('')
-    setObjetivo('')
-
-    carregarSessoes()
   }
 
-  useEffect(() => {
-
-    carregarSessoes()
-
-    carregarPacientes()
-
-  }, [])
-
   return (
-    <div className="min-h-screen bg-slate-100 p-10">
+    <div className="min-h-screen bg-slate-100 flex">
 
-      <h1 className="text-4xl font-bold text-green-700 mb-8">
-        Sessões Clínicas
-      </h1>
+      <aside className="w-72 bg-green-800 text-white p-8 hidden md:flex flex-col">
 
-      <div className="bg-white rounded-3xl shadow-lg p-6 mb-8">
+        <h1 className="text-3xl font-bold mb-10">
+          PEM
+        </h1>
 
-        <div className="flex flex-col gap-4">
+        <nav className="flex flex-col gap-4">
 
-          <select
-            value={pacienteId}
-            onChange={(e) =>
-              setPacienteId(e.target.value)
-            }
-            className="border p-4 rounded-2xl"
+          <Link
+            href="/dashboard"
+            className="bg-green-700 px-5 py-4 rounded-2xl"
           >
+            Dashboard
+          </Link>
 
-            <option value="">
-              Selecione um paciente
-            </option>
+          <Link
+            href="/pacientes"
+            className="bg-green-700 px-5 py-4 rounded-2xl"
+          >
+            Pacientes
+          </Link>
 
-            {pacientes.map((paciente) => (
+          <Link
+            href="/sessoes"
+            className="bg-green-600 px-5 py-4 rounded-2xl"
+          >
+            Sessões
+          </Link>
 
-              <option
-                key={paciente.id}
-                value={paciente.id}
-              >
-                {paciente.nome}
+        </nav>
+
+      </aside>
+
+      <main className="flex-1 p-10">
+
+        <div className="flex items-center justify-between mb-10">
+
+          <div>
+
+            <h1 className="text-5xl font-bold text-green-700">
+              Sessões Clínicas
+            </h1>
+
+            <p className="text-slate-500 mt-3 text-lg">
+              Registro terapêutico integrado
+            </p>
+
+          </div>
+
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-lg p-8 mb-10">
+
+          <h2 className="text-2xl font-bold text-green-700 mb-6">
+            Nova Sessão
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <select
+              value={form.paciente_id}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  paciente_id:
+                    Number(e.target.value)
+                })
+              }
+              className="border p-4 rounded-2xl"
+            >
+
+              <option value={0}>
+                Selecione o paciente
               </option>
 
-            ))}
+              {pacientes.map((paciente) => (
 
-          </select>
+                <option
+                  key={paciente.id}
+                  value={paciente.id}
+                >
+                  {paciente.nome}
+                </option>
 
-          <textarea
-            placeholder="Objetivo terapêutico"
-            value={objetivo}
-            onChange={(e) =>
-              setObjetivo(e.target.value)
-            }
-            className="border p-4 rounded-2xl h-32"
-          />
+              ))}
+
+            </select>
+
+            <input
+              type="datetime-local"
+              value={form.data}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  data: e.target.value
+                })
+              }
+              className="border p-4 rounded-2xl"
+            />
+
+            <textarea
+              placeholder="Objetivo da sessão"
+              value={form.objetivo}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  objetivo:
+                    e.target.value
+                })
+              }
+              className="border p-4 rounded-2xl h-32 md:col-span-2"
+            />
+
+            <textarea
+              placeholder="Técnicas utilizadas"
+              value={form.tecnica}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  tecnica:
+                    e.target.value
+                })
+              }
+              className="border p-4 rounded-2xl h-32 md:col-span-2"
+            />
+
+            <textarea
+              placeholder="Resposta do paciente"
+              value={form.resposta}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  resposta:
+                    e.target.value
+                })
+              }
+              className="border p-4 rounded-2xl h-32 md:col-span-2"
+            />
+
+            <textarea
+              placeholder="Evolução clínica"
+              value={form.evolucao}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  evolucao:
+                    e.target.value
+                })
+              }
+              className="border p-4 rounded-2xl h-40 md:col-span-2"
+            />
+
+          </div>
 
           <button
             onClick={salvarSessao}
-            className="bg-green-700 text-white px-6 py-3 rounded-2xl"
+            disabled={loading}
+            className="mt-8 bg-green-700 hover:bg-green-600 transition text-white px-8 py-4 rounded-2xl font-semibold"
           >
-            Salvar Sessão
+
+            {loading
+              ? 'Salvando...'
+              : 'Salvar Sessão'}
+
           </button>
 
         </div>
 
-      </div>
+        <div className="bg-white rounded-3xl shadow-lg p-8">
 
-      <div className="bg-white rounded-3xl shadow-lg p-6">
+          <h2 className="text-2xl font-bold text-green-700 mb-6">
+            Sessões Registradas
+          </h2>
 
-        <h2 className="text-2xl font-bold mb-6">
-          Histórico de Sessões
-        </h2>
+          <div className="flex flex-col gap-5">
 
-        <div className="flex flex-col gap-4">
+            {sessoes.map((sessao) => (
 
-          {sessoes.map((sessao) => (
+              <div
+                key={sessao.id}
+                className="border rounded-2xl p-6"
+              >
 
-            <div
-              key={sessao.id}
-              className="border rounded-2xl p-4"
-            >
+                <div className="flex items-center justify-between mb-4">
 
-              <p className="font-bold text-lg">
-                {sessao.paciente}
-              </p>
+                  <h3 className="text-xl font-bold text-green-700">
+                    {sessao.paciente_nome}
+                  </h3>
 
-              <p className="text-slate-600 mt-2">
-                {sessao.objetivo}
-              </p>
+                  <span className="text-slate-500">
+                    {new Date(
+                      sessao.data
+                    ).toLocaleString()}
+                  </span>
 
-            </div>
+                </div>
 
-          ))}
+                <p className="mb-2">
+                  <strong>Objetivo:</strong>
+                  {' '}
+                  {sessao.objetivo}
+                </p>
+
+                <p className="mb-2">
+                  <strong>Técnica:</strong>
+                  {' '}
+                  {sessao.tecnica}
+                </p>
+
+                <p className="mb-2">
+                  <strong>Resposta:</strong>
+                  {' '}
+                  {sessao.resposta}
+                </p>
+
+                <p>
+                  <strong>Evolução:</strong>
+                  {' '}
+                  {sessao.evolucao}
+                </p>
+
+              </div>
+
+            ))}
+
+          </div>
 
         </div>
 
-      </div>
+      </main>
 
     </div>
   )
